@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Naruto Idle RPG</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bangers&family=Rajdhani:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg: #0a0a12;
+  --bg2: #12121f;
+  --bg3: #1a1a2e;
+  --bg4: #0f0f1a;
+  --accent: #ff6b1a;
+  --accent2: #ffa726;
+  --accent3: #ffcc02;
+  --text: #f0f0f0;
+  --text2: #a0a0b8;
+  --success: #4caf50;
+  --warning: #ffc107;
+  --danger: #f44336;
+  --info: #2196f3;
+  --r: #78909c;
+  --sr: #42a5f5;
+  --ssr: #ab47bc;
+  --fire: #ff7043;
+  --wind: #81c784;
+  --water: #4fc3f7;
+  --earth: #a1887f;
+  --lightning: #fff176;
+  --font-display: 'Bangers', cursive;
+  --font-body: 'Rajdhani', sans-serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(255,107,26,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 100%, rgba(76,175,80,0.05) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+.container { max-width: 1400px; margin: 0 auto; padding: 20px; position: relative; z-index: 1; }
+
+header {
+  background: linear-gradient(135deg, var(--bg2) 0%, var(--bg3) 100%);
+  border-bottom: 3px solid var(--accent);
+  padding: 20px;
+  position: sticky; top: 0; z-index: 100;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 4px 30px rgba(255,107,26,0.15);
+}
+header h1 {
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  background: linear-gradient(90deg, var(--accent), var(--accent3));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+header h1 span { -webkit-text-fill-color: var(--accent3); }
+
+.stats-bar { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 12px; }
+.stat {
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 12px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.06);
+  font-size: 0.85rem;
+  font-family: var(--font-body);
+}
+.stat-icon { font-size: 1.1rem; }
+.stat-value { color: var(--accent2); font-weight: 700; }
+
+nav { display: flex; gap: 8px; margin: 20px 0; flex-wrap: wrap; }
+nav button {
+  background: var(--bg3);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: var(--text);
+  padding: 12px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: var(--font-body);
+  transition: all 0.25s;
+  position: relative;
+  overflow: hidden;
+}
+nav button::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%; width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,107,26,0.1), transparent);
+  transition: left 0.5s;
+}
+nav button:hover::before { left: 100%; }
+nav button:hover, nav button.active {
+  background: linear-gradient(135deg, var(--accent), #ff8f40);
+  color: #000;
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255,107,26,0.3);
+}
+
+.tab-content { display: none; animation: fadeIn 0.3s ease; }
+.tab-content.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+.card {
+  background: var(--bg2);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 16px;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+.card:hover { border-color: rgba(255,107,26,0.15); box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
+.card h3 {
+  color: var(--accent2);
+  margin-bottom: 16px;
+  font-size: 1.2rem;
+  font-family: var(--font-display);
+  letter-spacing: 1px;
+}
+
+.hero-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+.hero-card {
+  background: var(--bg3);
+  border-radius: 14px;
+  padding: 18px;
+  text-align: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.hero-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  border-radius: 14px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.hero-card.r::before { background: radial-gradient(circle at center, rgba(120,144,156,0.15) 0%, transparent 70%); }
+.hero-card.sr::before { background: radial-gradient(circle at center, rgba(66,165,245,0.15) 0%, transparent 70%); }
+.hero-card.ssr::before { background: radial-gradient(circle at center, rgba(171,71,188,0.2) 0%, transparent 70%); }
+.hero-card:hover::before { opacity: 1; }
+.hero-card:hover { transform: translateY(-6px); box-shadow: 0 12px 40px rgba(0,0,0,0.3); }
+.hero-card.r { border: 2px solid var(--r); }
+.hero-card.sr { border: 2px solid var(--sr); }
+.hero-card.ssr { border: 2px solid var(--ssr); }
+.hero-card.ssr:hover { box-shadow: 0 12px 40px rgba(171,71,188,0.2); }
+
+.hero-avatar {
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  margin: 0 auto 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: bold;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+.hero-avatar::after {
+  content: '';
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 60%);
+  animation: shimmer 3s infinite;
+}
+@keyframes shimmer { 0% { transform: translate(-30%, -30%); } 100% { transform: translate(30%, 30%); } }
+.hero-card.r .hero-avatar { background: linear-gradient(135deg, #546e7a, #78909c); }
+.hero-card.sr .hero-avatar { background: linear-gradient(135deg, #1565c0, #42a5f5); }
+.hero-card.ssr .hero-avatar { background: linear-gradient(135deg, #7b1fa2, #ce93d8); }
+
+.hero-name { font-weight: 700; margin-bottom: 4px; font-size: 0.95rem; }
+.hero-level { color: var(--text2); font-size: 0.82rem; }
+.hero-rarity {
+  position: absolute; top: 8px; right: 8px;
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+.hero-rarity.r { background: var(--r); color: #fff; }
+.hero-rarity.sr { background: var(--sr); color: #fff; }
+.hero-rarity.ssr { background: var(--ssr); color: #fff; }
+
+.btn {
+  background: linear-gradient(135deg, var(--accent), #ff8f40);
+  border: none; color: #000;
+  padding: 12px 24px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.9rem;
+  font-family: var(--font-body);
+  transition: all 0.25s;
+  position: relative;
+  overflow: hidden;
+}
+.btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255,107,26,0.35); }
+.btn:active { transform: translateY(0); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+.btn-secondary { background: var(--bg3); color: var(--text); border: 1px solid rgba(255,255,255,0.1); }
+.btn-secondary:hover { background: var(--bg2); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+
+.progress-bar { height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; margin: 8px 0; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent3)); border-radius: 3px; transition: width 0.5s ease; }
+
+.formation-slots { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin: 16px 0; }
+.formation-slot {
+  background: var(--bg3);
+  border: 2px dashed rgba(255,255,255,0.1);
+  border-radius: 14px;
+  padding: 18px;
+  text-align: center;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.formation-slot:hover { border-color: var(--accent); background: rgba(255,107,26,0.05); }
+.formation-slot.filled { border-style: solid; border-color: var(--accent); }
+.formation-slot.empty { opacity: 0.4; }
+.formation-slot.empty:hover { opacity: 0.7; }
+
+.battle-arena {
+  background: linear-gradient(180deg, var(--bg3) 0%, var(--bg4) 100%);
+  border-radius: 20px;
+  padding: 50px;
+  text-align: center;
+  margin: 20px 0;
+  border: 1px solid rgba(255,255,255,0.06);
+  position: relative;
+  overflow: hidden;
+}
+.battle-arena::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(ellipse at center, rgba(255,107,26,0.05) 0%, transparent 70%);
+  pointer-events: none;
+}
+.battle-log {
+  background: var(--bg4);
+  border-radius: 14px;
+  padding: 18px;
+  max-height: 300px;
+  overflow-y: auto;
+  font-family: 'Cascadia Code', 'Fira Code', monospace;
+  font-size: 0.85rem;
+  text-align: left;
+  border: 1px solid rgba(255,255,255,0.04);
+}
+.battle-log p { margin: 4px 0; padding: 2px 0; }
+.battle-log .damage { color: var(--danger); }
+.battle-log .heal { color: var(--success); }
+.battle-log .crit { color: var(--warning); font-weight: bold; }
+.battle-log .system { color: var(--text2); }
+
+.gacha-result { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; margin: 20px 0; perspective: 1000px; }
+.gacha-hero {
+  background: var(--bg3);
+  border-radius: 14px;
+  padding: 18px;
+  text-align: center;
+  animation: gachaReveal 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes gachaReveal {
+  from { transform: scale(0) rotateY(180deg); opacity: 0; }
+  to { transform: scale(1) rotateY(0deg); opacity: 1; }
+}
+
+.resources { display: flex; gap: 16px; flex-wrap: wrap; margin: 12px 0; }
+.resource {
+  background: var(--bg3);
+  border-radius: 10px;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.resource-icon { font-size: 1.2rem; }
+.resource-value { font-weight: 700; color: var(--accent2); }
+
+.training-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.training-card { background: var(--bg3); border-radius: 14px; padding: 22px; text-align: center; transition: transform 0.3s, box-shadow 0.3s; }
+.training-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
+.training-card h4 { color: var(--accent2); margin-bottom: 8px; }
+.training-level { font-size: 2.2rem; font-weight: 700; margin: 8px 0; }
+
+.dispatch-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.dispatch-card { background: var(--bg3); border-radius: 14px; padding: 22px; text-align: center; }
+.dispatch-card h4 { color: var(--accent2); margin-bottom: 8px; }
+.dispatch-timer { font-size: 1.5rem; font-weight: 700; margin: 8px 0; }
+
+.store-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+.store-item { background: var(--bg3); border-radius: 14px; padding: 22px; text-align: center; transition: transform 0.3s; }
+.store-item:hover { transform: translateY(-4px); }
+.store-item h4 { color: var(--accent2); margin-bottom: 8px; }
+.store-item .price { font-size: 1.2rem; font-weight: 700; color: var(--warning); margin: 8px 0; }
+
+.prestige-info { text-align: center; padding: 30px; }
+.prestige-info h2 { color: var(--accent2); margin-bottom: 16px; font-family: var(--font-display); font-size: 1.8rem; }
+.prestige-essence { font-size: 2.8rem; font-weight: 700; color: var(--ssr); margin: 16px 0; }
+
+.settings-section { margin: 16px 0; }
+.settings-section h3 { color: var(--accent2); margin-bottom: 12px; }
+.settings-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px;
+  background: var(--bg3);
+  border-radius: 10px;
+  margin-bottom: 8px;
+}
+.toggle {
+  width: 48px; height: 24px;
+  background: var(--bg);
+  border-radius: 12px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.3s;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.toggle.active { background: var(--accent); }
+.toggle::after {
+  content: '';
+  position: absolute;
+  width: 20px; height: 20px;
+  background: #fff;
+  border-radius: 50%;
+  top: 1px; left: 1px;
+  transition: transform 0.3s;
+}
+.toggle.active::after { transform: translateX(24px); }
+
+.modal {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.85);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+.modal.active { display: flex; animation: fadeIn 0.2s ease; }
+.modal-content {
+  background: var(--bg2);
+  border-radius: 20px;
+  padding: 30px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.modal-close { background: none; border: none; color: var(--text); font-size: 1.5rem; cursor: pointer; transition: color 0.2s; }
+.modal-close:hover { color: var(--accent); }
+
+.hero-detail { display: flex; gap: 20px; align-items: flex-start; }
+.hero-detail-avatar {
+  width: 100px; height: 100px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #fff;
+  flex-shrink: 0;
+}
+.hero-detail-avatar.r { background: linear-gradient(135deg, #546e7a, #78909c); }
+.hero-detail-avatar.sr { background: linear-gradient(135deg, #1565c0, #42a5f5); }
+.hero-detail-avatar.ssr { background: linear-gradient(135deg, #7b1fa2, #ce93d8); }
+.hero-detail-info { flex: 1; }
+.hero-detail-info h2 { color: var(--accent2); margin-bottom: 8px; font-family: var(--font-display); font-size: 1.4rem; }
+.hero-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin: 12px 0; }
+.hero-stat { background: var(--bg3); border-radius: 8px; padding: 10px; display: flex; justify-content: space-between; font-size: 0.85rem; }
+.hero-stat .label { color: var(--text2); }
+.hero-stat .value { font-weight: 700; }
+
+.ascension-stars { display: flex; gap: 4px; margin: 8px 0; }
+.ascension-star { width: 18px; height: 18px; border-radius: 50%; background: var(--bg3); border: 1px solid rgba(255,255,255,0.1); transition: all 0.3s; }
+.ascension-star.filled { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 8px rgba(255,107,26,0.4); }
+
+.toast {
+  position: fixed;
+  bottom: 24px; right: 24px;
+  background: var(--bg3);
+  border: 1px solid var(--accent);
+  border-radius: 12px;
+  padding: 14px 20px;
+  z-index: 1001;
+  animation: toastIn 0.3s ease;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+@keyframes toastIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+.offline-progress {
+  background: linear-gradient(135deg, var(--bg3), var(--bg2));
+  border-radius: 14px;
+  padding: 24px;
+  text-align: center;
+  margin: 16px 0;
+  border: 1px solid rgba(76,175,80,0.2);
+}
+.offline-rewards { display: flex; gap: 16px; justify-content: center; margin: 12px 0; }
+.offline-reward { background: var(--bg); border-radius: 10px; padding: 12px 20px; }
+.offline-reward .value { font-size: 1.3rem; font-weight: 700; color: var(--accent2); }
+
+.enemy-preview { display: flex; gap: 12px; justify-content: center; margin: 16px 0; }
+.enemy-card { background: var(--bg3); border-radius: 12px; padding: 14px; text-align: center; min-width: 80px; }
+.enemy-avatar {
+  width: 50px; height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #b71c1c, #e53935);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  margin: 0 auto 8px;
+}
+
+.stage-info { display: flex; justify-content: space-between; align-items: center; margin: 12px 0; }
+.stage-badge {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: #000;
+  padding: 4px 14px;
+  border-radius: 16px;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+@media (max-width: 768px) {
+  .formation-slots { grid-template-columns: repeat(2, 1fr); }
+  .training-grid { grid-template-columns: 1fr; }
+  .dispatch-grid { grid-template-columns: 1fr; }
+  .hero-grid { grid-template-columns: repeat(2, 1fr); }
+  .hero-detail { flex-direction: column; align-items: center; }
+  .stats-bar { font-size: 0.78rem; gap: 8px; }
+  .stat { padding: 4px 8px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <h1><span>Naruto</span> Idle RPG</h1>
+    <div class="stats-bar">
+      <div class="stat"><span class="stat-icon">[ryo]</span><span class="stat-value" id="stat-ryo">0</span> Ryo</div>
+      <div class="stat"><span class="stat-icon">[xp]</span><span class="stat-value" id="stat-xp">0</span> Chakra XP</div>
+      <div class="stat"><span class="stat-icon">[gem]</span><span class="stat-value" id="stat-gems">0</span> Gems</div>
+      <div class="stat"><span class="stat-icon">[dust]</span><span class="stat-value" id="stat-dust">0</span> Dust</div>
+      <div class="stat"><span class="stat-icon">[scroll]</span><span class="stat-value" id="stat-scrolls">0</span> Scrolls</div>
+      <div class="stat"><span class="stat-icon">[stage]</span><span class="stat-value" id="stat-stage">1</span> Stage</div>
+      <div class="stat"><span class="stat-icon">[vip]</span><span class="stat-value" id="stat-vip">0</span> VIP</div>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+  <nav>
+    <button class="active" onclick="showTab('home')">Home</button>
+    <button onclick="showTab('heroes')">Helden</button>
+    <button onclick="showTab('formation')">Formation</button>
+    <button onclick="showTab('battle')">Kampf</button>
+    <button onclick="showTab('gacha')">Summon</button>
+    <button onclick="showTab('training')">Training</button>
+    <button onclick="showTab('dispatch')">Dispatch</button>
+    <button onclick="showTab('store')">Store</button>
+    <button onclick="showTab('prestige')">Prestige</button>
+    <button onclick="showTab('settings')">Optionen</button>
+  </nav>
+
+  <div id="tab-home" class="tab-content active">
+    <div class="card">
+      <h3>Willkommen zurueck, Ninja!</h3>
+      <p>Trainiere deine Shinobi, stelle deine Formation zusammen und erkunde die Welt der Ninja.</p>
+      <div class="offline-progress" id="offline-progress" style="display:none;">
+        <h3>Offline-Fortschritt</h3>
+        <p>Du warst <span id="offline-time">0</span> weg. Deine Ninja haben trainiert!</p>
+        <div class="offline-rewards">
+          <div class="offline-reward"><div class="value" id="offline-ryo">0</div><div>Ryo</div></div>
+          <div class="offline-reward"><div class="value" id="offline-xp">0</div><div>XP</div></div>
+          <div class="offline-reward"><div class="value" id="offline-dust">0</div><div>Dust</div></div>
+        </div>
+        <button class="btn" onclick="claimOfflineRewards()">Belohnungen abholen</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Statistiken</h3>
+      <div class="resources">
+        <div class="resource"><span class="resource-icon">[pow]</span><span>Staerke: </span><span class="resource-value" id="stat-power">0</span></div>
+        <div class="resource"><span class="resource-icon">[hero]</span><span>Helden: </span><span class="resource-value" id="stat-heroes">0</span></div>
+        <div class="resource"><span class="resource-icon">[win]</span><span>Sieg: </span><span class="resource-value" id="stat-wins">0</span></div>
+        <div class="resource"><span class="resource-icon">[loss]</span><span>Niederlagen: </span><span class="resource-value" id="stat-losses">0</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab-heroes" class="tab-content">
+    <div class="card">
+      <h3>Deine Helden</h3>
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+        <button class="btn btn-secondary" onclick="filterHeroes('alle')">Alle</button>
+        <button class="btn btn-secondary" onclick="filterHeroes('R')">R</button>
+        <button class="btn btn-secondary" onclick="filterHeroes('SR')">SR</button>
+        <button class="btn btn-secondary" onclick="filterHeroes('SSR')">SSR</button>
+        <button class="btn btn-secondary" onclick="sortHeroes('level')">Nach Level</button>
+        <button class="btn btn-secondary" onclick="sortHeroes('power')">Nach Staerke</button>
+        <button class="btn btn-secondary" onclick="sortHeroes('name')">Nach Name</button>
+      </div>
+      <div class="hero-grid" id="hero-grid"></div>
+    </div>
+  </div>
+
+  <div id="tab-formation" class="tab-content">
+    <div class="card">
+      <h3>Formation</h3>
+      <p>Stelle deine 5 Ninja zusammen. Element-Boni aktiviert.</p>
+      <div class="formation-slots" id="formation-slots"></div>
+      <div class="card">
+        <h3>Verfuegbare Helden</h3>
+        <div class="hero-grid" id="available-heroes"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab-battle" class="tab-content">
+    <div class="card">
+      <h3>Kampf Arena</h3>
+      <div class="stage-info">
+        <span class="stage-badge">Stage <span id="current-stage">1</span></span>
+        <span>Feind-Staerke: <span id="enemy-power">0</span></span>
+      </div>
+      <div class="enemy-preview" id="enemy-preview"></div>
+      <div class="battle-arena">
+        <h3 id="battle-title">Bereit fuer den Kampf?</h3>
+        <p id="battle-description">Stelle deine Formation zusammen und greife den Feind an!</p>
+        <button class="btn" id="battle-btn" onclick="startBattle()">Kampf starten</button>
+      </div>
+      <div class="battle-log" id="battle-log"></div>
+    </div>
+  </div>
+
+  <div id="tab-gacha" class="tab-content">
+    <div class="card">
+      <h3>Summon</h3>
+      <p>Verwende Scrolls, um neue Ninja zu beschwoeren. SSR Chance: 3%</p>
+      <div class="resources">
+        <div class="resource"><span class="resource-icon">[scroll]</span><span>Scrolls: </span><span class="resource-value" id="gacha-scrolls">0</span></div>
+        <div class="resource"><span class="resource-icon">[gem]</span><span>Gems: </span><span class="resource-value" id="gacha-gems">0</span></div>
+      </div>
+      <div style="text-align:center; margin: 16px 0;">
+        <button class="btn" onclick="summon(1)">1x Beschwoeren (1 Scroll)</button>
+        <button class="btn" onclick="summon(10)">10x Beschwoeren (10 Scrolls)</button>
+        <button class="btn btn-secondary" onclick="summonWithGems()">1x mit 100 Gems</button>
+      </div>
+      <div class="gacha-result" id="gacha-result"></div>
+    </div>
+  </div>
+
+  <div id="tab-training" class="tab-content">
+    <div class="card">
+      <h3>Training</h3>
+      <p>Trainiere deine Ninja, um sie staerker zu machen. Kosten: Ryo</p>
+      <div class="training-grid" id="training-grid"></div>
+    </div>
+  </div>
+
+  <div id="tab-dispatch" class="tab-content">
+    <div class="card">
+      <h3>Dispatch Missionen</h3>
+      <p>Schicke Ninja auf Missionen, um Belohnungen zu erhalten.</p>
+      <div class="dispatch-grid" id="dispatch-grid"></div>
+    </div>
+  </div>
+
+  <div id="tab-store" class="tab-content">
+    <div class="card">
+      <h3>Store</h3>
+      <div class="store-grid" id="store-grid"></div>
+    </div>
+  </div>
+
+  <div id="tab-prestige" class="tab-content">
+    <div class="card">
+      <div class="prestige-info">
+        <h2>Prestige</h2>
+        <p>Setze deinen Fortschritt zurueck, um permanente Boni zu erhalten.</p>
+        <div class="prestige-essence" id="prestige-essence">0</div>
+        <p>Prestige Essenz</p>
+        <p style="margin-top:16px;">Aktueller Bonus: <span id="prestige-bonus">+0%</span></p>
+        <button class="btn" id="prestige-btn" onclick="doPrestige()">Prestige durchfuehren</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab-settings" class="tab-content">
+    <div class="card">
+      <h3>Optionen</h3>
+      <div class="settings-section">
+        <h3>Audio</h3>
+        <div class="settings-item">
+          <span>Soundeffekte</span>
+          <div class="toggle active" id="toggle-sound" onclick="toggleSetting('sound')"></div>
+        </div>
+        <div class="settings-item">
+          <span>Musik</span>
+          <div class="toggle active" id="toggle-music" onclick="toggleSetting('music')"></div>
+        </div>
+      </div>
+      <div class="settings-section">
+        <h3>Gameplay</h3>
+        <div class="settings-item">
+          <span>Auto-Kampf</span>
+          <div class="toggle" id="toggle-auto-battle" onclick="toggleSetting('autoBattle')"></div>
+        </div>
+        <div class="settings-item">
+          <span>Benachrichtigungen</span>
+          <div class="toggle active" id="toggle-notifications" onclick="toggleSetting('notifications')"></div>
+        </div>
+        <div class="settings-item">
+          <span>Reduzierte Bewegung</span>
+          <div class="toggle" id="toggle-reduced-motion" onclick="toggleSetting('reducedMotion')"></div>
+        </div>
+        <div class="settings-item">
+          <span>Niedriger Verbrauch</span>
+          <div class="toggle" id="toggle-low-power" onclick="toggleSetting('lowPower')"></div>
+        </div>
+      </div>
+      <div class="settings-section">
+        <h3>Darstellung</h3>
+        <div class="settings-item">
+          <span>Dunkelmodus</span>
+          <div class="toggle active" id="toggle-dark-mode" onclick="toggleSetting('darkMode')"></div>
+        </div>
+        <div class="settings-item">
+          <span>Kampftempo</span>
+          <select id="battle-speed" style="background:var(--bg3);color:var(--text);border:1px solid rgba(255,255,255,0.1);padding:6px 12px;border-radius:6px;">
+            <option value="1">Normal</option>
+            <option value="2">Schnell</option>
+            <option value="3">Sehr schnell</option>
+          </select>
+        </div>
+      </div>
+      <div class="settings-section">
+        <h3>Daten</h3>
+        <div class="settings-item">
+          <span>Speicherstand</span>
+          <span id="save-size">0 KB</span>
+        </div>
+        <button class="btn btn-secondary" onclick="exportSave()">Exportieren</button>
+        <button class="btn btn-secondary" onclick="importSave()">Importieren</button>
+        <button class="btn btn-secondary" onclick="resetSave()">Zuruecksetzen</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="hero-modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 id="modal-hero-name">Hero</h2>
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+    </div>
+    <div class="hero-detail" id="modal-hero-detail"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast" style="display:none;"></div>
+
+<script>
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+let audioCtx = null;
+function ensureAudio() {
+  if (!audioCtx) audioCtx = new AudioCtx();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+}
+function playTone(freq, duration, type = 'sine', volume = 0.15) {
+  if (!game.settings.sound) return;
+  ensureAudio();
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+  gain.gain.setValueAtTime(volume, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.start();
+  osc.stop(audioCtx.currentTime + duration);
+}
+function sfxClick() { playTone(800, 0.05, 'square', 0.05); }
+function sfxSummon() { playTone(440, 0.3, 'sine', 0.1); playTone(660, 0.2, 'sine', 0.08); playTone(880, 0.4, 'sine', 0.1); }
+function sfxBattle() { playTone(200, 0.1, 'sawtooth', 0.08); }
+function sfxVictory() { playTone(523, 0.2, 'sine', 0.1); playTone(659, 0.2, 'sine', 0.1); playTone(784, 0.3, 'sine', 0.1); }
+function sfxLevelUp() { playTone(440, 0.1, 'triangle', 0.1); playTone(880, 0.2, 'triangle', 0.1); }
+
+const ELEMENTS = ['fire', 'wind', 'water', 'earth', 'lightning'];
+const ELEMENT_NAMES = { fire: 'Feuer', wind: 'Wind', water: 'Wasser', earth: 'Erde', lightning: 'Blitz' };
+const ELEMENT_COLORS = { fire: '#ff7043', wind: '#81c784', water: '#4fc3f7', earth: '#a1887f', lightning: '#fff176' };
+const ROLES = ['taijutsu', 'ninjutsu', 'genjutsu', 'support'];
+const ROLE_NAMES = { taijutsu: 'Taijutsu', ninjutsu: 'Ninjutsu', genjutsu: 'Genjutsu', support: 'Support' };
+const RARITIES = ['R', 'SR', 'SSR'];
+const RARITY_COLORS = { R: '#78909c', SR: '#42a5f5', SSR: '#ab47bc' };
+
+const HEROES = [
+  { id: 1, name: 'Naruto Uzumaki', element: 'wind', rarity: 'R', role: 'taijutsu', jutsu: 'Rasengan', desc: 'Ninja aus Hidden Leaf' },
+  { id: 2, name: 'Sasuke Uchiha', element: 'fire', rarity: 'R', role: 'ninjutsu', jutsu: 'Chidori', desc: 'Uchiha Ueberlebender' },
+  { id: 3, name: 'Sakura Haruno', element: 'earth', rarity: 'R', role: 'support', jutsu: 'Chakra Punch', desc: 'Medic Ninja' },
+  { id: 4, name: 'Kakashi Hatake', element: 'lightning', rarity: 'R', role: 'ninjutsu', jutsu: 'Lightning Blade', desc: 'Copy Ninja' },
+  { id: 5, name: 'Rock Lee', element: 'wind', rarity: 'R', role: 'taijutsu', jutsu: 'Leaf Hurricane', desc: 'Taijutsu Meister' },
+  { id: 6, name: 'Shikamaru Nara', element: 'earth', rarity: 'SR', role: 'genjutsu', jutsu: 'Shadow Bind', desc: 'Strategie Genius' },
+  { id: 7, name: 'Gaara', element: 'earth', rarity: 'SR', role: 'taijutsu', jutsu: 'Sand Coffin', desc: 'Kazekage' },
+  { id: 8, name: 'Itachi Uchiha', element: 'fire', rarity: 'SR', role: 'genjutsu', jutsu: 'Amaterasu', desc: 'Akatsuki Mitglied' },
+  { id: 9, name: 'Jiraiya', element: 'fire', rarity: 'SR', role: 'ninjutsu', jutsu: 'Sage Mode', desc: 'Legendary Sannin' },
+  { id: 10, name: 'Tsunade', element: 'earth', rarity: 'SR', role: 'support', jutsu: 'Creation Rebirth', desc: 'Hokage' },
+  { id: 11, name: 'Minato Namikaze', element: 'lightning', rarity: 'SSR', role: 'ninjutsu', jutsu: 'Flying Raijin', desc: 'Fourth Hokage' },
+  { id: 12, name: 'Madara Uchiha', element: 'fire', rarity: 'SSR', role: 'ninjutsu', jutsu: 'Susanoo', desc: 'Uchiha Legende' },
+  { id: 13, name: 'Hashirama Senju', element: 'earth', rarity: 'SSR', role: 'support', jutsu: 'Wood Style', desc: 'First Hokage' },
+  { id: 14, name: 'Obito Uchiha', element: 'fire', rarity: 'SSR', role: 'genjutsu', jutsu: 'Kamui', desc: 'Masked Man' },
+  { id: 15, name: 'Tobirama Senju', element: 'water', rarity: 'SSR', role: 'ninjutsu', jutsu: 'Flying Raijin', desc: 'Second Hokage' },
+  { id: 16, name: 'Kisame Hoshigaki', element: 'water', rarity: 'SSR', role: 'taijutsu', jutsu: 'Samehada', desc: 'Akatsuki Mitglied' },
+  { id: 17, name: 'Pain Nagato', element: 'lightning', rarity: 'SSR', role: 'genjutsu', jutsu: 'Shinra Tensei', desc: 'Akatsuki Leader' },
+  { id: 18, name: 'Might Guy', element: 'wind', rarity: 'SSR', role: 'taijutsu', jutsu: 'Eight Gates', desc: 'Taijutsu Legende' },
+  { id: 19, name: 'Hiruzen Sarutobi', element: 'fire', rarity: 'SSR', role: 'ninjutsu', jutsu: 'Enma', desc: 'Third Hokage' },
+  { id: 20, name: 'Orochimaru', element: 'wind', rarity: 'SSR', role: 'genjutsu', jutsu: 'Snake Jutsu', desc: 'Legendary Sannin' },
+  { id: 21, name: 'Temari', element: 'wind', rarity: 'SSR', role: 'taijutsu', jutsu: 'Wind Scythe', desc: 'Sand Ninja' },
+  { id: 22, name: 'Killer Bee', element: 'lightning', rarity: 'SSR', role: 'taijutsu', jutsu: 'Lariat', desc: 'Eight-Tails Jinchuriki' },
+  { id: 23, name: 'Neji Hyuga', element: 'earth', rarity: 'SSR', role: 'ninjutsu', jutsu: 'Gentle Fist', desc: 'Byakugan Master' },
+  { id: 24, name: 'Hinata Hyuga', element: 'lightning', rarity: 'SSR', role: 'support', jutsu: 'Gentle Fist', desc: 'Byakugan Princess' },
+  { id: 25, name: 'Konan', element: 'wind', rarity: 'SSR', role: 'genjutsu', jutsu: 'Paper Jutsu', desc: 'Akatsuki Member' },
+];
+
+const MISSIONS = [
+  { id: 'patrol', name: 'Patrouille', duration: 1800, ryo: 50000, scrolls: 0, dust: 15 },
+  { id: 'bounty', name: 'Kopfgeld', duration: 3600, ryo: 120000, scrolls: 1, dust: 30 },
+  { id: 'escort', name: 'Eskorte', duration: 7200, ryo: 250000, scrolls: 2, dust: 60 },
+  { id: 'war', name: 'Krieg', duration: 14400, ryo: 500000, scrolls: 4, dust: 120 },
+];
+
+const STORE_ITEMS = [
+  { id: 'gems_s', name: '100 Gems', price: 'EUR 0.99', gems: 100 },
+  { id: 'gems_m', name: '500 Gems', price: 'EUR 4.99', gems: 500 },
+  { id: 'gems_l', name: '1200 Gems', price: 'EUR 9.99', gems: 1200 },
+  { id: 'monthly', name: 'Monatskarte', price: 'EUR 4.99', gems: 300, monthly: true },
+  { id: 'season', name: 'Season Pass', price: 'EUR 9.99', gems: 500, season: true },
+  { id: 'noads', name: 'Werbung entfernen', price: 'EUR 2.99', ads: true },
+];
+
+let game = {
+  ryo: 1000000, xp: 0, gems: 500, dust: 100, scrolls: 5,
+  stage: 1, highestStage: 1, prestigeCycle: 0, prestigeEssence: 0,
+  vipLevel: 0, vipPoints: 0,
+  heroes: [], formation: [null, null, null, null, null],
+  training: { health: 0, taijutsu: 0, ninjutsu: 0 },
+  dispatch: [], wins: 0, losses: 0,
+  lastSave: Date.now(), lastAccrual: Date.now(),
+  settings: { sound: true, music: true, reducedMotion: false, lowPower: false, autoBattle: false, notifications: true, darkMode: true, battleSpeed: 1 },
+};
+let heroFilter = 'alle';
+let heroSort = 'level';
+
+function saveGame() {
+  game.lastSave = Date.now();
+  localStorage.setItem('naruto_idle_save', JSON.stringify(game));
+  updateSaveSize();
+}
+function loadGame() {
+  const save = localStorage.getItem('naruto_idle_save');
+  if (save) {
+    try { game = { ...game, ...JSON.parse(save) }; checkOfflineProgress(); }
+    catch (e) { initNewGame(); }
+  } else { initNewGame(); }
+}
+function initNewGame() {
+  [1, 2, 3, 4, 5].forEach(id => {
+    game.heroes.push({ instanceId: 'hero_' + Date.now() + '_' + id, heroId: id, level: 1, xp: 0, ascension: 0 });
+  });
+  game.heroes.slice(0, 5).forEach((h, i) => { game.formation[i] = h.instanceId; });
+  saveGame();
+}
+function checkOfflineProgress() {
+  const now = Date.now();
+  const elapsed = Math.floor((now - game.lastAccrual) / 1000);
+  if (elapsed > 60) {
+    const ryoGain = elapsed * 1000, xpGain = elapsed * 10, dustGain = Math.floor(elapsed / 60);
+    game.ryo += ryoGain; game.xp += xpGain; game.dust += dustGain; game.lastAccrual = now;
+    showOfflineProgress(elapsed, ryoGain, xpGain, dustGain);
+  }
+}
+function showOfflineProgress(sec, ryo, xp, dust) {
+  const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60);
+  document.getElementById('offline-time').textContent = h > 0 ? `${h}h ${m}m` : `${m}m`;
+  document.getElementById('offline-ryo').textContent = fmt(ryo);
+  document.getElementById('offline-xp').textContent = fmt(xp);
+  document.getElementById('offline-dust').textContent = fmt(dust);
+  document.getElementById('offline-progress').style.display = 'block';
+}
+function claimOfflineRewards() {
+  document.getElementById('offline-progress').style.display = 'none'; saveGame(); toast('Belohnungen abgeholt!');
+}
+function updateSaveSize() {
+  const size = new Blob([JSON.stringify(game)]).size;
+  document.getElementById('save-size').textContent = fmt(size) + ' B';
+}
+
+function fmt(n) {
+  if (n >= 1e12) return (n / 1e12).toFixed(1) + 'T';
+  if (n >= 1e9) return (n / 1e9).toFixed(1) + 'B';
+  if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M';
+  if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+  return n.toString();
+}
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.display = 'block';
+  setTimeout(() => t.style.display = 'none', 3000);
+}
+function getHeroById(id) { return HEROES.find(h => h.id === id); }
+function getHeroInstance(instanceId) { return game.heroes.find(h => h.instanceId === instanceId); }
+function getHeroPower(instanceId) {
+  const inst = getHeroInstance(instanceId);
+  if (!inst) return 0;
+  const hero = getHeroById(inst.heroId);
+  const base = { R: 100, SR: 300, SSR: 1000 }[hero.rarity];
+  return Math.floor(base * (1 + (inst.level - 1) * 0.12) * (1 + inst.ascension * 0.5));
+}
+function getFormationPower() { return game.formation.reduce((s, id) => s + (id ? getHeroPower(id) : 0), 0); }
+function getTrainingBonus() { return { health: 1 + game.training.health * 0.05, taijutsu: 1 + game.training.taijutsu * 0.05, ninjutsu: 1 + game.training.ninjutsu * 0.05 }; }
+function getPrestigeBonus() { return 1 + game.prestigeEssence * 0.01; }
+
+function showTab(tab) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  event.target.classList.add('active');
+  sfxClick();
+  renderTab(tab);
+}
+function renderTab(tab) {
+  switch(tab) {
+    case 'home': break;
+    case 'heroes': renderHeroes(); break;
+    case 'formation': renderFormation(); break;
+    case 'battle': renderBattle(); break;
+    case 'gacha': renderGacha(); break;
+    case 'training': renderTraining(); break;
+    case 'dispatch': renderDispatch(); break;
+    case 'store': renderStore(); break;
+    case 'prestige': renderPrestige(); break;
+    case 'settings': renderSettings(); break;
+  }
+  updateStats();
+}
+function updateStats() {
+  document.getElementById('stat-ryo').textContent = fmt(game.ryo);
+  document.getElementById('stat-xp').textContent = fmt(game.xp);
+  document.getElementById('stat-gems').textContent = fmt(game.gems);
+  document.getElementById('stat-dust').textContent = fmt(game.dust);
+  document.getElementById('stat-scrolls').textContent = fmt(game.scrolls);
+  document.getElementById('stat-stage').textContent = game.stage;
+  document.getElementById('stat-vip').textContent = game.vipLevel;
+  document.getElementById('stat-power').textContent = fmt(getFormationPower());
+  document.getElementById('stat-heroes').textContent = game.heroes.length;
+  document.getElementById('stat-wins').textContent = game.wins;
+  document.getElementById('stat-losses').textContent = game.losses;
+}
+
+function filterHeroes(rarity) { heroFilter = rarity; renderHeroes(); }
+function sortHeroes(by) { heroSort = by; renderHeroes(); }
+
+function renderHeroes() {
+  let heroes = [...game.heroes];
+  if (heroFilter !== 'alle') heroes = heroes.filter(h => getHeroById(h.heroId).rarity === heroFilter);
+  if (heroSort === 'level') heroes.sort((a, b) => b.level - a.level);
+  else if (heroSort === 'power') heroes.sort((a, b) => getHeroPower(b.instanceId) - getHeroPower(a.instanceId));
+  else if (heroSort === 'name') heroes.sort((a, b) => getHeroById(a.heroId).name.localeCompare(getHeroById(b.heroId).name));
+
+  const grid = document.getElementById('hero-grid');
+  grid.innerHTML = heroes.map(inst => {
+    const hero = getHeroById(inst.heroId);
+    const elColor = ELEMENT_COLORS[hero.element];
+    return `<div class="hero-card ${hero.rarity.toLowerCase()}" onclick="showHeroDetail('${inst.instanceId}')">
+      <span class="hero-rarity ${hero.rarity.toLowerCase()}">${hero.rarity}</span>
+      <div class="hero-avatar" style="border:2px solid ${elColor}">${hero.name.charAt(0)}</div>
+      <div class="hero-name">${hero.name}</div>
+      <div class="hero-level">Lv.${inst.level} | ${ELEMENT_NAMES[hero.element]} | ${ROLE_NAMES[hero.role]}</div>
+    </div>`;
+  }).join('');
+}
+
+function showHeroDetail(instanceId) {
+  const inst = getHeroInstance(instanceId);
+  const hero = getHeroById(inst.heroId);
+  const power = getHeroPower(instanceId);
+  const bonus = getTrainingBonus();
+  const pb = getPrestigeBonus();
+  const elColor = ELEMENT_COLORS[hero.element];
+
+  document.getElementById('modal-hero-name').textContent = hero.name;
+  document.getElementById('modal-hero-detail').innerHTML = `<div class="hero-detail-avatar ${hero.rarity.toLowerCase()}" style="border:3px solid ${elColor}">${hero.name.charAt(0)}</div>
+    <div class="hero-detail-info"><h2>${hero.name}</h2>
+      <p>${ELEMENT_NAMES[hero.element]} | ${ROLE_NAMES[hero.role]} | ${hero.rarity}</p>
+      <p style="font-size:0.8rem;color:var(--text2);margin-top:4px;">${hero.desc}</p>
+      <p style="font-size:0.85rem;color:var(--accent2);margin-top:4px;">Jutsu: ${hero.jutsu}</p>
+      <div class="ascension-stars">${Array.from({length: 11}, (_, i) => `<div class="ascension-star ${i < inst.ascension ? 'filled' : ''}"></div>`).join('')}</div>
+      <div class="hero-stats">
+        <div class="hero-stat"><span class="label">Level</span><span class="value">${inst.level}</span></div>
+        <div class="hero-stat"><span class="label">Staerke</span><span class="value">${fmt(power)}</span></div>
+        <div class="hero-stat"><span class="label">HP</span><span class="value">${fmt(Math.floor(1000 * (1 + inst.level * 0.1) * bonus.health * pb))}</span></div>
+        <div class="hero-stat"><span class="label">Angriff</span><span class="value">${fmt(Math.floor(500 * (1 + inst.level * 0.1) * bonus.taijutsu * pb))}</span></div>
+      </div>
+      <button class="btn" onclick="levelUpHero('${inst.instanceId}')">Level Up (1000 Ryo)</button>
+      <button class="btn btn-secondary" onclick="ascendHero('${inst.instanceId}')">Ascend (100 Dust)</button>
+    </div>`;
+  document.getElementById('hero-modal').classList.add('active');
+}
+function closeModal() { document.getElementById('hero-modal').classList.remove('active'); }
+
+function levelUpHero(instanceId) {
+  if (game.ryo < 1000) { toast('Nicht genug Ryo!'); return; }
+  game.ryo -= 1000; getHeroInstance(instanceId).level++;
+  sfxLevelUp(); saveGame(); showHeroDetail(instanceId);
+  toast(`${getHeroById(getHeroInstance(instanceId).heroId).name} ist jetzt Level ${getHeroInstance(instanceId).level}!`);
+}
+function ascendHero(instanceId) {
+  if (game.dust < 100) { toast('Nicht genug Dust!'); return; }
+  const inst = getHeroInstance(instanceId);
+  if (inst.ascension >= 11) { toast('Maximale Ascension erreicht!'); return; }
+  game.dust -= 100; inst.ascension++;
+  sfxLevelUp(); saveGame(); showHeroDetail(instanceId);
+  toast(`${getHeroById(inst.heroId).name} ist jetzt Ascension ${inst.ascension}!`);
+}
+
+function renderFormation() {
+  const slots = document.getElementById('formation-slots');
+  slots.innerHTML = game.formation.map((id, i) => {
+    if (id) {
+      const inst = getHeroInstance(id); const hero = getHeroById(inst.heroId);
+      return `<div class="formation-slot filled" onclick="removeFromFormation(${i})">
+        <div class="hero-avatar" style="width:44px;height:44px;font-size:1rem;border:2px solid ${ELEMENT_COLORS[hero.element]}">${hero.name.charAt(0)}</div>
+        <div style="margin-top:4px;font-size:0.75rem;">${hero.name}</div>
+        <div style="font-size:0.65rem;color:var(--text2);">Lv.${inst.level}</div>
+      </div>`;
+    }
+    return `<div class="formation-slot empty" onclick="showTab('formation')">+</div>`;
+  }).join('');
+
+  const available = document.getElementById('available-heroes');
+  const avail = game.heroes.filter(h => !game.formation.includes(h.instanceId));
+  available.innerHTML = avail.map(inst => {
+    const hero = getHeroById(inst.heroId);
+    return `<div class="hero-card ${hero.rarity.toLowerCase()}" onclick="addToFormation('${inst.instanceId}')">
+      <span class="hero-rarity ${hero.rarity.toLowerCase()}">${hero.rarity}</span>
+      <div class="hero-avatar" style="border:2px solid ${ELEMENT_COLORS[hero.element]}">${hero.name.charAt(0)}</div>
+      <div class="hero-name">${hero.name}</div>
+      <div class="hero-level">Lv.${inst.level}</div>
+    </div>`;
+  }).join('');
+}
+function addToFormation(instanceId) {
+  const empty = game.formation.indexOf(null);
+  if (empty === -1) { toast('Formation ist voll!'); return; }
+  game.formation[empty] = instanceId; saveGame(); renderFormation();
+}
+function removeFromFormation(index) { game.formation[index] = null; saveGame(); renderFormation(); }
+
+function renderBattle() {
+  document.getElementById('current-stage').textContent = game.stage;
+  const ePow = Math.floor(1000 * Math.pow(1.1, game.stage - 1));
+  document.getElementById('enemy-power').textContent = fmt(ePow);
+  const enemies = document.getElementById('enemy-preview');
+  const count = Math.min(3, Math.ceil(game.stage / 10));
+  enemies.innerHTML = Array.from({length: count}, (_, i) => `<div class="enemy-card"><div class="enemy-avatar">[X]</div><div>Feind ${i + 1}</div></div>`).join('');
+  document.getElementById('battle-log').innerHTML = '<p class="system">Bereit fuer den Kampf...</p>';
+}
+
+function startBattle() {
+  sfxBattle();
+  const power = getFormationPower();
+  const ePow = Math.floor(1000 * Math.pow(1.1, game.stage - 1));
+  const log = document.getElementById('battle-log');
+  log.innerHTML = '';
+  let pHp = power * 10, eHp = ePow * 10;
+  const events = [];
+  let tick = 0;
+  const speed = game.settings.battleSpeed || 1;
+  const interval = setInterval(() => {
+    tick++;
+    const pDmg = Math.floor(power * (0.8 + Math.random() * 0.4));
+    const eDmg = Math.floor(ePow * (0.8 + Math.random() * 0.4));
+    eHp -= pDmg; pHp -= eDmg;
+    if (tick % 5 === 0) events.push(`<p class="damage">Dein Team verursacht ${fmt(pDmg)}!</p>`);
+    if (tick % 7 === 0) events.push(`<p class="heal">Feind verursacht ${fmt(eDmg)}!</p>`);
+    if (Math.random() < 0.1) { const cDmg = Math.floor(pDmg * 2); eHp -= cDmg; events.push(`<p class="crit">KRITISCH! ${fmt(cDmg)}!</p>`); }
+    log.innerHTML = events.slice(-20).join(''); log.scrollTop = log.scrollHeight;
+    if (eHp <= 0) {
+      clearInterval(interval); sfxVictory();
+      events.push(`<p class="system">SIEG! Stage ${game.stage} geschafft!</p>`);
+      log.innerHTML = events.slice(-20).join('');
+      game.wins++; game.stage++; game.highestStage = Math.max(game.highestStage, game.stage);
+      game.ryo += 10000 * game.stage; game.xp += 100 * game.stage; game.dust += 10;
+      if (game.stage % 10 === 0) { game.gems += 100; game.scrolls += 2; }
+      saveGame(); toast(`Stage ${game.stage - 1} geschafft!`); renderBattle();
+    } else if (pHp <= 0) {
+      clearInterval(interval); events.push(`<p class="system">Niederlage!</p>`);
+      log.innerHTML = events.slice(-20).join(''); game.losses++; saveGame(); renderBattle();
+    }
+  }, 100 / speed);
+}
+
+function renderGacha() {
+  document.getElementById('gacha-scrolls').textContent = fmt(game.scrolls);
+  document.getElementById('gacha-gems').textContent = fmt(game.gems);
+}
+function summon(count) {
+  if (game.scrolls < count) { toast('Nicht genug Scrolls!'); return; }
+  game.scrolls -= count; sfxSummon();
+  const results = [];
+  for (let i = 0; i < count; i++) {
+    const roll = Math.random() * 100;
+    let rarity = roll < 3 ? 'SSR' : roll < 15 ? 'SR' : 'R';
+    const pool = HEROES.filter(h => h.rarity === rarity);
+    const hero = pool[Math.floor(Math.random() * pool.length)];
+    game.heroes.push({ instanceId: 'hero_' + Date.now() + '_' + hero.id + '_' + i, heroId: hero.id, level: 1, xp: 0, ascension: 0 });
+    results.push(hero);
+  }
+  const rd = document.getElementById('gacha-result');
+  rd.innerHTML = results.map(h => `<div class="gacha-hero"><div class="hero-card ${h.rarity.toLowerCase()}" style="border:none;">
+    <span class="hero-rarity ${h.rarity.toLowerCase()}">${h.rarity}</span>
+    <div class="hero-avatar" style="border:2px solid ${ELEMENT_COLORS[h.element]}">${h.name.charAt(0)}</div>
+    <div class="hero-name">${h.name}</div></div></div>`).join('');
+  saveGame(); toast(`${count} Ninja beschwoeren!`);
+}
+function summonWithGems() {
+  if (game.gems < 100) { toast('Nicht genug Gems!'); return; }
+  game.gems -= 100; game.scrolls += 1; summon(1);
+}
+
+function renderTraining() {
+  const grid = document.getElementById('training-grid');
+  const bonus = getTrainingBonus();
+  const names = { health: 'Gesundheit', taijutsu: 'Taijutsu', ninjutsu: 'Ninjutsu' };
+  grid.innerHTML = ['health', 'taijutsu', 'ninjutsu'].map(attr => {
+    const level = game.training[attr]; const cost = Math.floor(10000 * Math.pow(1.5, level));
+    return `<div class="training-card"><h4>${names[attr]}</h4>
+      <div class="training-level">Lv.${level}</div>
+      <p>Bonus: +${((bonus[attr] - 1) * 100).toFixed(0)}%</p>
+      <div class="progress-bar"><div class="progress-fill" style="width:${Math.min(100, level / 10)}%"></div></div>
+      <button class="btn" onclick="train('${attr}')" ${game.ryo < cost ? 'disabled' : ''}>Training (${fmt(cost)} Ryo)</button>
+    </div>`;
+  }).join('');
+}
+function train(attr) {
+  const level = game.training[attr]; const cost = Math.floor(10000 * Math.pow(1.5, level));
+  if (game.ryo < cost) { toast('Nicht genug Ryo!'); return; }
+  game.ryo -= cost; game.training[attr]++; sfxLevelUp(); saveGame(); renderTraining();
+}
+
+function renderDispatch() {
+  const grid = document.getElementById('dispatch-grid');
+  grid.innerHTML = MISSIONS.map(m => {
+    const active = game.dispatch.find(j => j.mission === m.id && !j.claimed);
+    if (active) {
+      const rem = Math.max(0, active.readyAt - Date.now());
+      const h = Math.floor(rem / 3600000), m = Math.floor((rem % 3600000) / 60000);
+      return `<div class="dispatch-card"><h4>${m.name}</h4><div class="dispatch-timer">${h}h ${m}m</div><p>Laeuft...</p></div>`;
+    }
+    return `<div class="dispatch-card"><h4>${m.name}</h4>
+      <p>Belohnung: ${fmt(m.ryo)} Ryo, ${m.scrolls} Scrolls, ${m.dust} Dust</p>
+      <p>Dauer: ${m.duration / 3600}h</p>
+      <button class="btn" onclick="startDispatch('${m.id}')">Starten</button></div>`;
+  }).join('');
+}
+function startDispatch(missionId) {
+  const m = MISSIONS.find(x => x.id === missionId);
+  const avail = game.heroes.filter(h => !game.formation.includes(h.instanceId) && !game.dispatch.find(j => j.heroInstanceId === h.instanceId && !j.claimed));
+  if (avail.length === 0) { toast('Keine Helden verfuegbar!'); return; }
+  game.dispatch.push({ mission: missionId, heroInstanceId: avail[0].instanceId, startedAt: Date.now(), readyAt: Date.now() + m.duration * 1000, claimed: false });
+  saveGame(); renderDispatch(); toast(`${m.name} gestartet!`);
+}
+
+function renderStore() {
+  const grid = document.getElementById('store-grid');
+  grid.innerHTML = STORE_ITEMS.map(item => `<div class="store-item"><h4>${item.name}</h4><div class="price">${item.price}</div>
+    <button class="btn" onclick="buyItem('${item.id}')">Kaufen</button></div>`).join('');
+}
+function buyItem(id) { toast('Store ist Demo-Modus'); }
+
+function renderPrestige() {
+  document.getElementById('prestige-essence').textContent = game.prestigeEssence;
+  document.getElementById('prestige-bonus').textContent = `+${(game.prestigeEssence).toFixed(0)}%`;
+}
+function doPrestige() {
+  if (game.stage < 10) { toast('Mindestens Stage 10!'); return; }
+  const gain = Math.floor(game.stage / 10);
+  game.prestigeEssence += gain; game.prestigeCycle++; game.stage = 1; game.ryo = 1000000; game.xp = 0; game.dust = 100;
+  sfxVictory(); saveGame(); renderPrestige(); toast(`Prestige! +${gain} Essenz`);
+}
+
+function renderSettings() {
+  const s = game.settings;
+  document.getElementById('toggle-sound').classList.toggle('active', s.sound);
+  document.getElementById('toggle-music').classList.toggle('active', s.music);
+  document.getElementById('toggle-auto-battle').classList.toggle('active', s.autoBattle);
+  document.getElementById('toggle-notifications').classList.toggle('active', s.notifications);
+  document.getElementById('toggle-reduced-motion').classList.toggle('active', s.reducedMotion);
+  document.getElementById('toggle-low-power').classList.toggle('active', s.lowPower);
+  document.getElementById('toggle-dark-mode').classList.toggle('active', s.darkMode);
+  document.getElementById('battle-speed').value = s.battleSpeed || 1;
+  updateSaveSize();
+}
+function toggleSetting(setting) { game.settings[setting] = !game.settings[setting]; saveGame(); renderSettings(); }
+
+function exportSave() {
+  const blob = new Blob([JSON.stringify(game, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob); const a = document.createElement('a');
+  a.href = url; a.download = 'naruto_idle_save.json'; a.click(); toast('Spielstand exportiert!');
+}
+function importSave() {
+  const input = document.createElement('input'); input.type = 'file'; input.accept = '.json';
+  input.onchange = e => { const f = e.target.files[0]; const r = new FileReader();
+    r.onload = ev => { try { game = { ...game, ...JSON.parse(ev.target.result) }; saveGame(); toast('Importiert!'); renderTab('home'); } catch { toast('Ungueltige Datei!'); } };
+    r.readAsText(f); };
+  input.click();
+}
+function resetSave() { if (confirm('Wirklich zuruecksetzen?')) { localStorage.removeItem('naruto_idle_save'); location.reload(); } }
+
+setInterval(() => {
+  const now = Date.now();
+  const elapsed = Math.floor((now - game.lastAccrual) / 1000);
+  if (elapsed > 0) { game.ryo += elapsed * 1000; game.xp += elapsed * 10; game.dust += Math.floor(elapsed / 60); game.lastAccrual = now; }
+  saveGame(); updateStats();
+}, 5000);
+
+loadGame(); renderTab('home');
+</script>
+</body>
+</html>
